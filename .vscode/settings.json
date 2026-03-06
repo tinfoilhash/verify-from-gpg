@@ -1,0 +1,16 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "cSpell.words": [
+    "coldcard",
+    "endswith",
+    "nostr",
+    "npub",
+    "nsec",
+    "seedsigner",
+    "sparrowwallet",
+    "strptime",
+    "tinfoilhash"
+  ]
+}
