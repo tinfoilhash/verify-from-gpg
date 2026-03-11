@@ -81,9 +81,13 @@ verify_from_github() {
       continue
     fi
 
-    shasum_check=$(shasum --check "$shasum_filename" --ignore-missing)
+    if [ "$shasum_filename" = "$shasum_signature_filename" ]; then
+      shasum_manifest=$(gpg --decrypt "$shasum_signature_filename" 2>/dev/null)
+    else
+      shasum_manifest=$(<"$shasum_filename")
+    fi
 
-    shasum_manifest=$(<"$shasum_filename")
+    shasum_check=$(echo "$shasum_manifest" | shasum --check --ignore-missing)
 
     echo "$shasum_manifest" | while IFS=' ' read -r hash asterisk_filename; do
       filename=$(echo "$asterisk_filename" | sed 's/^*//')
