@@ -3,15 +3,24 @@ source ../../common/common.sh
 verify_from_github() {
   package_name="$1"
   repo="$2"
-  key_fingerprint="$3"
+  key_fingerprints="$3"
   shasum_filename_pattern="$4"
   shasum_signature_filename_pattern="$5"
 
   source_state "$package_name"
 
-  echo '----- checking for gpg key'
+  echo '----- checking for gpg keys'
 
-  if ! gpg --list-keys "$key_fingerprint"; then
+  key_fingerprints_found=false
+
+  for key_fingerprint in "${key_fingerprints[@]}"; do
+    if gpg --list-keys "$key_fingerprint"; then
+      key_fingerprints_found=true
+    fi
+  done
+
+  if [ "$key_fingerprints_found" = false ]; then
+    echo 'did not find at least one key, exiting'
     exit 1
   fi
 
@@ -48,7 +57,7 @@ verify_from_github() {
 
     gh release download "$name" --repo "$repo" --skip-existing
 
-    echo '------- verifying gpg signature'
+    echo '------- verifying gpg signatures'
 
     shasum_signature_filename="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
 
