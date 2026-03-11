@@ -31,7 +31,7 @@ key_fingerprints=(
   '67AA5B46E7AF78053167FE343B8F814A784218F8' # https://raw.githubusercontent.com/bitcoin-core/guix.sigs/refs/heads/main/builder-keys/willcl-ark.gpg
 )
 
-echo '----- checking for gpg key'
+echo '----- checking for gpg keys'
 
 key_fingerprints_found=false
 

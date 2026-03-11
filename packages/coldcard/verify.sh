@@ -13,11 +13,22 @@ package_name='coldcard'
 
 source_state "$package_name"
 
-key_fingerprint='4589779ADFC14F3327534EA8A3A31BAD5A2A5B10' # https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xA3A31BAD5A2A5B10
+key_fingerprints=(
+  '4589779ADFC14F3327534EA8A3A31BAD5A2A5B10' # https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xA3A31BAD5A2A5B10
+)
 
-echo '----- checking for gpg key'
+echo '----- checking for gpg keys'
 
-if ! gpg --list-keys "$key_fingerprint"; then
+key_fingerprints_found=false
+
+for key_fingerprint in "${key_fingerprints[@]}"; do
+  if gpg --list-keys "$key_fingerprint"; then
+    key_fingerprints_found=true
+  fi
+done
+
+if [ "$key_fingerprints_found" = false ]; then
+  echo 'did not find at least one key, exiting'
   exit 1
 fi
 
@@ -49,7 +60,7 @@ shasum_signed_filename='signatures.txt'
 
 curl -O "https://raw.githubusercontent.com/Coldcard/firmware/master/releases/$shasum_signed_filename"
 
-echo '----- verifying gpg signature'
+echo '----- verifying gpg signatures'
 
 if ! gpg --verify "$shasum_signed_filename"; then
   exit 1
