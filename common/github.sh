@@ -104,7 +104,14 @@ verify_from_github() {
         continue
       fi
 
-      IFS=',' read -r url content_type size <<< "$(echo "$release_assets" | jaq -r ".assets[] | select(.name == \"$filename\") | \"\(.url),\(.contentType),\(.size)\"")"
+      release_asset=$(echo "$release_assets" | jaq -r ".assets[] | select(.name == \"$filename\") | \"\(.url),\(.contentType),\(.size)\"")
+
+      if [ -z "$release_asset" ]; then
+        echo 'release asset not found, exiting'
+        exit 1
+      fi
+
+      IFS=',' read -r url content_type size <<< "$release_asset"
 
       echo "filename: $filename"
       echo "hash: $hash"
