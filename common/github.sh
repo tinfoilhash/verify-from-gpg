@@ -89,8 +89,8 @@ verify_from_github() {
 
     shasum_check=$(echo "$shasum_manifest" | shasum --check --ignore-missing)
 
-    echo "$shasum_manifest" | while IFS=' ' read -r hash asterisk_filename; do
-      filename=$(echo "$asterisk_filename" | sed 's/^*//')
+    echo "$shasum_manifest" | while IFS=' ' read -r hash filename_raw; do
+      filename=$(echo "$filename_raw" | sed 's/^\*//' | sed 's/^\.\///')
 
       echo "------- processing file: $filename"
 
