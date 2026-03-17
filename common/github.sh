@@ -59,32 +59,40 @@ verify_from_github() {
 
     echo '------- verifying gpg signatures'
 
-    shasum_signature_filename="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
+    shasum_filename="${shasum_filename_pattern//\{\{NAME\}\}/$name}"
 
-    if [ ! -f "$shasum_signature_filename" ]; then
-      echo 'file does not exist, skipping'
+    if [ ! -f "$shasum_filename" ]; then
+      echo 'hashes file does not exist, skipping'
       complete_release "$package_name" "$name" "$published_at"
       continue
     fi
 
-    if ! gpg --verify "$shasum_signature_filename"; then
+    shasum_signature_filename="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
+
+    if [ ! -f "$shasum_signature_filename" ]; then
+      echo 'gpg signatures file does not exist, skipping'
+      complete_release "$package_name" "$name" "$published_at"
+      continue
+    fi
+
+    is_shasum_signature_detached=$(if [ "$shasum_filename" = "$shasum_signature_filename" ]; then echo 0; else echo 1; fi)
+
+    gpg_verify_args=("$shasum_signature_filename")
+
+    if [ "$is_shasum_signature_detached" -eq 1 ]; then
+      gpg_verify_args+=("$shasum_filename")
+    fi
+
+    if ! gpg --verify "${gpg_verify_args[@]}"; then
       exit 1
     fi
 
     echo '------- verifying hashes'
 
-    shasum_filename="${shasum_filename_pattern//\{\{NAME\}\}/$name}"
-
-    if [ ! -f "$shasum_filename" ]; then
-      echo 'file does not exist, skipping'
-      complete_release "$package_name" "$name" "$published_at"
-      continue
-    fi
-
-    if [ "$shasum_filename" = "$shasum_signature_filename" ]; then
-      shasum_manifest=$(gpg --decrypt "$shasum_signature_filename" 2>/dev/null)
-    else
+    if [ "$is_shasum_signature_detached" -eq 1 ]; then
       shasum_manifest=$(<"$shasum_filename")
+    else
+      shasum_manifest=$(gpg --decrypt "$shasum_signature_filename" 2>/dev/null)
     fi
 
     shasum_check=$(echo "$shasum_manifest" | shasum --check --ignore-missing)
