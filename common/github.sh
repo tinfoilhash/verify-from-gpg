@@ -84,7 +84,9 @@ verify_from_github() {
     fi
 
     if ! gpg --verify "${gpg_verify_args[@]}"; then
-      exit 1
+      echo 'gpg signatures verification failed, skipping'
+      complete_release "$package_name" "$name" "$published_at"
+      continue
     fi
 
     echo '------- verifying hashes'

@@ -63,6 +63,7 @@ curl -O "https://raw.githubusercontent.com/Coldcard/firmware/master/releases/$sh
 echo '----- verifying gpg signatures'
 
 if ! gpg --verify "$shasum_signed_filename"; then
+  echo 'gpg signatures verification failed, exiting'
   exit 1
 fi
 
