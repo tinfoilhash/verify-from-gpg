@@ -4,7 +4,7 @@ relay='wss://verify-relay.tinfoilhash.com'
 npub_hex=$(nak key public "$NSEC")
 
 check_dependencies() {
-  commands=(
+  local commands=(
     'gh'
     'gpg'
     'hq'
@@ -12,6 +12,7 @@ check_dependencies() {
     'nak'
   )
 
+  local command
   for command in "${commands[@]}"; do
     if ! type "$command" &> /dev/null; then
       echo "$command not found, exiting"
@@ -26,9 +27,9 @@ check_dependencies() {
 }
 
 source_state() {
-  package_name="$1"
+  local package_name="$1"
 
-  state_file="$config_dir/$package_name"
+  local state_file="$config_dir/$package_name"
 
   if [ -f "$state_file" ]; then
     source "$state_file"
@@ -41,7 +42,7 @@ source_state() {
 }
 
 is_published_to_verify() {
-  hash="$1"
+  local hash="$1"
 
   nak req -q -k 1063 -a "$npub_hex" -t x="$hash" "$relay" < /dev/null 2>&1 \
   | grep -v "filter does not match" \
@@ -49,21 +50,21 @@ is_published_to_verify() {
 }
 
 publish_to_verify() {
-  filename="$1"
-  hash="$2"
-  url="$3"
-  content_type="$4"
-  size="$5"
+  local filename="$1"
+  local hash="$2"
+  local url="$3"
+  local content_type="$4"
+  local size="$5"
 
   nak event -k 1063 -c "$filename" -t x="$hash" -t url="$url" -t m="$content_type" -t size="$size" --sec "$NSEC" "$relay" < /dev/null
 }
 
 complete_release() {
-  package_name="$1"
-  release_dir="$2"
-  published_at="$3"
+  local package_name="$1"
+  local release_dir="$2"
+  local published_at="$3"
 
-  state_file="$config_dir/$package_name"
+  local state_file="$config_dir/$package_name"
 
   cd ..
   rm -r "$release_dir"

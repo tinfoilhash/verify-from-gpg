@@ -1,18 +1,19 @@
 source ../../common/common.sh
 
 verify_from_github() {
-  package_name="$1"
-  repo="$2"
-  key_fingerprints="$3"
-  shasum_filename_pattern="$4"
-  shasum_signature_filename_pattern="$5"
+  local package_name="$1"
+  local repo="$2"
+  local key_fingerprints="$3"
+  local shasum_filename_pattern="$4"
+  local shasum_signature_filename_pattern="$5"
 
   source_state "$package_name"
 
   echo '----- checking for gpg keys'
 
-  key_fingerprints_found=false
+  local key_fingerprints_found=false
 
+  local key_fingerprint
   for key_fingerprint in "${key_fingerprints[@]}"; do
     if gpg --list-keys "$key_fingerprint"; then
       key_fingerprints_found=true
@@ -26,12 +27,12 @@ verify_from_github() {
 
   echo '----- getting list of releases'
 
-  releases=$(gh release list --repo "$repo" --exclude-drafts --limit "$limit" --json tagName,publishedAt)
+  local releases=$(gh release list --repo "$repo" --exclude-drafts --limit "$limit" --json tagName,publishedAt)
 
   echo '----- checking for new releases'
 
-  new_releases=$(echo "$releases" | jaq -r "map(select(.publishedAt > \"$last_release_published_at\")) | reverse | .[] | \"\(.tagName),\(.publishedAt)\"")
-  new_releases_count=$(printf '%s' "$new_releases" | grep -c '^')
+  local new_releases=$(echo "$releases" | jaq -r "map(select(.publishedAt > \"$last_release_published_at\")) | reverse | .[] | \"\(.tagName),\(.publishedAt)\"")
+  local new_releases_count=$(printf '%s' "$new_releases" | grep -c '^')
 
   echo "new releases found: $new_releases_count"
 
@@ -48,7 +49,7 @@ verify_from_github() {
 
     echo '------- getting list of assets'
 
-    release_assets=$(gh release view "$name" --repo "$repo" --json assets)
+    local release_assets=$(gh release view "$name" --repo "$repo" --json assets)
 
     echo "------- downloading assets to directory: $name"
 
@@ -59,7 +60,7 @@ verify_from_github() {
 
     echo '------- verifying gpg signatures'
 
-    shasum_filename="${shasum_filename_pattern//\{\{NAME\}\}/$name}"
+    local shasum_filename="${shasum_filename_pattern//\{\{NAME\}\}/$name}"
 
     if [ ! -f "$shasum_filename" ]; then
       echo 'hashes file does not exist, skipping'
@@ -67,7 +68,7 @@ verify_from_github() {
       continue
     fi
 
-    shasum_signature_filename="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
+    local shasum_signature_filename="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
 
     if [ ! -f "$shasum_signature_filename" ]; then
       echo 'gpg signatures file does not exist, skipping'
@@ -75,9 +76,9 @@ verify_from_github() {
       continue
     fi
 
-    is_shasum_signature_detached=$(if [ "$shasum_filename" = "$shasum_signature_filename" ]; then echo 0; else echo 1; fi)
+    local is_shasum_signature_detached=$(if [ "$shasum_filename" = "$shasum_signature_filename" ]; then echo 0; else echo 1; fi)
 
-    gpg_verify_args=("$shasum_signature_filename")
+    local gpg_verify_args=("$shasum_signature_filename")
 
     if [ "$is_shasum_signature_detached" -eq 1 ]; then
       gpg_verify_args+=("$shasum_filename")
@@ -91,16 +92,18 @@ verify_from_github() {
 
     echo '------- verifying hashes'
 
+    local shasum_manifest
+
     if [ "$is_shasum_signature_detached" -eq 1 ]; then
       shasum_manifest=$(<"$shasum_filename")
     else
       shasum_manifest=$(gpg --decrypt "$shasum_signature_filename" 2>/dev/null)
     fi
 
-    shasum_check=$(echo "$shasum_manifest" | shasum --check --ignore-missing)
+    local shasum_check=$(echo "$shasum_manifest" | shasum --check --ignore-missing)
 
     echo "$shasum_manifest" | while IFS=' ' read -r hash filename_shasum; do
-      filename=$(echo "$filename_shasum" | sed 's/^\*//' | sed 's/^\.\///')
+      local filename=$(echo "$filename_shasum" | sed 's/^\*//' | sed 's/^\.\///')
 
       echo "------- processing file: $filename"
 
@@ -114,7 +117,7 @@ verify_from_github() {
         continue
       fi
 
-      release_asset=$(echo "$release_assets" | jaq -r ".assets[] | select(.name == \"$filename\") | \"\(.url),\(.contentType),\(.size)\"")
+      local release_asset=$(echo "$release_assets" | jaq -r ".assets[] | select(.name == \"$filename\") | \"\(.url),\(.contentType),\(.size)\"")
 
       if [ -z "$release_asset" ]; then
         echo 'release asset not found, exiting'
