@@ -44,6 +44,7 @@ is_published_to_verify() {
   hash="$1"
 
   nak req -q -k 1063 -a "$npub_hex" -t x="$hash" "$relay" < /dev/null 2>&1 \
+  | grep -v "filter does not match" \
   | grep -Fq "$hash"
 }
 
