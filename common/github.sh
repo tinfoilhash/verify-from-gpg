@@ -99,8 +99,8 @@ verify_from_github() {
 
     shasum_check=$(echo "$shasum_manifest" | shasum --check --ignore-missing)
 
-    echo "$shasum_manifest" | while IFS=' ' read -r hash filename_raw; do
-      filename=$(echo "$filename_raw" | sed 's/^\*//' | sed 's/^\.\///')
+    echo "$shasum_manifest" | while IFS=' ' read -r hash filename_shasum; do
+      filename=$(echo "$filename_shasum" | sed 's/^\*//' | sed 's/^\.\///')
 
       echo "------- processing file: $filename"
 
@@ -129,7 +129,7 @@ verify_from_github() {
       echo "content type: $content_type"
       echo "size: $size"
 
-      if echo "$shasum_check" | grep -Fxq "$filename: OK"; then
+      if echo "$shasum_check" | grep -Fxq "$filename_shasum: OK"; then
         echo 'verified: yes'
       else
         echo 'verified: no'
