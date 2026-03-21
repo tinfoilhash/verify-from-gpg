@@ -15,8 +15,10 @@
     "nsec",
     "roasbeef",
     "seedsigner",
+    "shasums",
     "sparrowwallet",
     "strptime",
-    "tinfoilhash"
+    "tinfoilhash",
+    "wizardsardine"
   ]
 }
