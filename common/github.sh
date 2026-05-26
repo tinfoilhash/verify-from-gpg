@@ -144,7 +144,7 @@ verify_from_github() {
       echo "content type: $content_type"
       echo "size: $size"
 
-      if echo "$shasum_check" | grep -Fxq "$filename_shasum: OK"; then
+      if echo "$shasum_check" | grep -Fxq -e "$filename: OK" -e "$filename_shasum: OK"; then
         echo 'verified: yes'
       else
         echo 'verified: no'
