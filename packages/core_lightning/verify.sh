@@ -22,6 +22,9 @@ key_fingerprints=(
   '7169D26272B50A3F531AA1C2A57AFC231B580804' # https://raw.githubusercontent.com/ElementsProject/lightning/refs/heads/master/contrib/keys/madel.txt
   '616C52F99D0612B2A151B1074129A994AA7E9852' # https://raw.githubusercontent.com/ElementsProject/lightning/refs/heads/master/contrib/keys/cln.txt
   '1A371C2C30645FAA91AA6B7DB643E61284221961' # https://raw.githubusercontent.com/ElementsProject/lightning/refs/heads/master/contrib/keys/sangbida.txt
+  'C491580878207F03C3B966F9B4088CD4608A7CA1' # https://raw.githubusercontent.com/ElementsProject/lightning/refs/heads/master/contrib/keys/lagrang3.txt
+  '8A079421A871D0B1083511937AB4802ED5A639F3' # https://raw.githubusercontent.com/ElementsProject/lightning/refs/heads/master/contrib/keys/daywalker90.txt
+  'A57656F8004F6FD68ED99C85BE277A87802A6F08' # https://raw.githubusercontent.com/ElementsProject/lightning/refs/heads/master/contrib/keys/ngoline.txt
 )
 shasum_filename_pattern='SHA256SUMS-{{NAME}}'
 shasum_signature_filename_pattern="$shasum_filename_pattern.asc"
