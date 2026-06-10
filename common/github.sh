@@ -60,13 +60,15 @@ verify_from_github() {
 
     echo '------- verifying gpg signatures'
 
-    local shasum_filename
-
     if [ "$(type -t $shasum_filename_pattern)" = 'function' ]; then
-      shasum_filename=$($shasum_filename_pattern "$name")
+      shasum_filename_pattern=$($shasum_filename_pattern "$name")
     else
-      shasum_filename="${shasum_filename_pattern//\{\{NAME\}\}/$name}"
+      shasum_filename_pattern="${shasum_filename_pattern//\{\{NAME\}\}/$name}"
     fi
+
+    # glob expansion, use first match
+    local shasum_filename=( $shasum_filename_pattern )
+    shasum_filename="${shasum_filename[0]}"
 
     if [ ! -f "$shasum_filename" ]; then
       echo 'hashes file does not exist, skipping'
@@ -74,13 +76,15 @@ verify_from_github() {
       continue
     fi
 
-    local shasum_signature_filename
-
     if [ "$(type -t $shasum_signature_filename_pattern)" = 'function' ]; then
-      shasum_signature_filename=$($shasum_signature_filename_pattern "$name")
+      shasum_signature_filename_pattern=$($shasum_signature_filename_pattern "$name")
     else
-      shasum_signature_filename="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
+      shasum_signature_filename_pattern="${shasum_signature_filename_pattern//\{\{NAME\}\}/$name}"
     fi
+
+    # glob expansion, use first match
+    local shasum_signature_filename=( $shasum_signature_filename_pattern )
+    shasum_signature_filename="${shasum_signature_filename[0]}"
 
     if [ ! -f "$shasum_signature_filename" ]; then
       echo 'gpg signatures file does not exist, skipping'
